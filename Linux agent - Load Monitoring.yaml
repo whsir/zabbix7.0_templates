@@ -41,6 +41,11 @@ zabbix_export:
           tags:
             - tag: component
               value: cpu
+      tags:
+        - tag: class
+          value: os
+        - tag: target
+          value: linux
       macros:
         - macro: '{$LOAD_AVG_PER_CPU.MAX}'
           value: '1.5'
