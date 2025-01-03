@@ -1,0 +1,159 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 43a7c6430aa1437ebd64a1ef49ce8cb7
+      template: 'Linux agent - FS Monitoring'
+      name: 'Linux agent - FS Monitoring'
+      description: 'Zabbix 7.0文件系统空间监控模板。'
+      vendor:
+        name: whsir
+        version: 7.0-1
+      groups:
+        - name: Templates
+      discovery_rules:
+        - uuid: 0fb3ae8754014b00b4d770bfa53f9351
+          name: Linux磁盘自动发现
+          key: vfs.fs.discovery
+          filter:
+            evaltype: AND
+            conditions:
+              - macro: '{#FSNAME}'
+                value: '{$VFS.FS.FSNAME.MATCHES}'
+                formulaid: A
+              - macro: '{#FSNAME}'
+                value: '{$VFS.FS.FSNAME.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: B
+              - macro: '{#FSTYPE}'
+                value: '{$VFS.FS.FSTYPE.MATCHES}'
+                formulaid: C
+              - macro: '{#FSTYPE}'
+                value: '{$VFS.FS.FSTYPE.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: D
+          item_prototypes:
+            - uuid: 1f0609a16ea744e4a1b50902848ed68b
+              name: '[{#FSNAME}]可用率'
+              key: 'vfs.fs.inode[{#FSNAME},pfree]'
+              delay: 10s
+              value_type: FLOAT
+              units: '%'
+              tags:
+                - tag: component
+                  value: storage
+                - tag: filesystem
+                  value: '{#FSNAME}'
+                - tag: fstype
+                  value: '{#FSTYPE}'
+            - uuid: 5a9503f03a244fd5ace225cea9b18c69
+              name: '[{#FSNAME}]可用容量'
+              key: 'vfs.fs.size[{#FSNAME},free]'
+              delay: 10s
+              units: B
+              tags:
+                - tag: component
+                  value: storage
+                - tag: filesystem
+                  value: '{#FSNAME}'
+                - tag: fstype
+                  value: '{#FSTYPE}'
+            - uuid: 271585a6ef294ddab61024573b3ca80f
+              name: '[{#FSNAME}]使用率'
+              key: 'vfs.fs.size[{#FSNAME},pused]'
+              delay: 10s
+              value_type: FLOAT
+              units: '%'
+              tags:
+                - tag: component
+                  value: storage
+                - tag: filesystem
+                  value: '{#FSNAME}'
+                - tag: fstype
+                  value: '{#FSTYPE}'
+              trigger_prototypes:
+                - uuid: 866e9f5794b443e6aafd6769ff4671dd
+                  expression: 'last(/Linux agent - FS Monitoring/vfs.fs.size[{#FSNAME},pused])>{$PUSED.UTIL.MAX}'
+                  name: 'Linux: [{#FSNAME}]: 空间不足'
+                  priority: AVERAGE
+            - uuid: 1c3451e4f6e34070a2dc33761153c8af
+              name: '[{#FSNAME}]总空间容量'
+              key: 'vfs.fs.size[{#FSNAME},total]'
+              delay: 10s
+              units: B
+              tags:
+                - tag: component
+                  value: storage
+                - tag: filesystem
+                  value: '{#FSNAME}'
+                - tag: fstype
+                  value: '{#FSTYPE}'
+            - uuid: b68eb5b9c4de4e228cb7bf347befec0d
+              name: '[{#FSNAME}]已使用容量'
+              key: 'vfs.fs.size[{#FSNAME},used]'
+              delay: 10s
+              units: B
+              tags:
+                - tag: component
+                  value: storage
+                - tag: filesystem
+                  value: '{#FSNAME}'
+                - tag: fstype
+                  value: '{#FSTYPE}'
+          graph_prototypes:
+            - uuid: 2d6c1042d72f4496b7f1eafeab077f33
+              name: 'FS [{#FSTYPE}({#FSNAME})]:磁盘图形'
+              graph_items:
+                - color: 1A7C11
+                  calc_fnc: ALL
+                  item:
+                    host: 'Linux agent - FS Monitoring'
+                    key: 'vfs.fs.size[{#FSNAME},total]'
+                - sortorder: '1'
+                  color: '274482'
+                  calc_fnc: ALL
+                  item:
+                    host: 'Linux agent - FS Monitoring'
+                    key: 'vfs.fs.size[{#FSNAME},used]'
+                - sortorder: '2'
+                  color: F63100
+                  calc_fnc: ALL
+                  item:
+                    host: 'Linux agent - FS Monitoring'
+                    key: 'vfs.fs.size[{#FSNAME},pused]'
+          overrides:
+            - name: 跳过动态的元数据收集
+              step: '1'
+              filter:
+                conditions:
+                  - macro: '{#FSTYPE}'
+                    value: ^(btrfs|zfs)$
+                    formulaid: A
+              operations:
+                - operationobject: ITEM_PROTOTYPE
+                  operator: LIKE
+                  value: Inodes
+                  discover: NO_DISCOVER
+      tags:
+        - tag: class
+          value: ps
+        - tag: target
+          value: linux
+      macros:
+        - macro: '{$PUSED.UTIL.MAX}'
+          value: '90'
+          description: 空间使用率阈值
+        - macro: '{$VFS.FS.FSNAME.MATCHES}'
+          value: .+
+          description: 用于文件系统发现
+        - macro: '{$VFS.FS.FSNAME.NOT_MATCHES}'
+          value: ^(/dev|/sys|/run|/proc|.+/shm$)
+          description: 用于文件系统发现
+        - macro: '{$VFS.FS.FSTYPE.MATCHES}'
+          value: ^(btrfs|ext2|ext3|ext4|reiser|xfs|ffs|ufs|jfs|jfs2|vxfs|hfs|apfs|refs|ntfs|fat32|zfs)$
+          description: 用于文件系统发现
+        - macro: '{$VFS.FS.FSTYPE.NOT_MATCHES}'
+          value: ^\s$
+          description: 用于文件系统发现

@@ -5,9 +5,12 @@ zabbix_export:
       name: Templates
   templates:
     - uuid: 7f09bbd77d614efc933f848b3eda773c
-      template: 'Linux by Zabbix agent - Memory Monitoring'
-      name: 'Linux by Zabbix agent - Memory Monitoring'
+      template: 'Linux agent - Memory Monitoring'
+      name: 'Linux agent - Memory Monitoring'
       description: 'Zabbix 7.0内存监控模板。'
+      vendor:
+        name: whsir
+        version: 7.0-1
       groups:
         - name: Templates
       items:
@@ -31,7 +34,7 @@ zabbix_export:
               value: storage
           triggers:
             - uuid: 4e3e3df3d56f41cebb9d8f555c8ee18b
-              expression: 'last(/Linux by Zabbix agent - Memory Monitoring/system.swap.size[,pused])>{$MEMORY.UTIL.MAX}'
+              expression: 'last(/Linux agent - Memory Monitoring/system.swap.size[,pused])>{$MEMORY.UTIL.MAX}'
               name: 已用swap使用率
               priority: AVERAGE
         - uuid: fd039a7ee41740a195fced9619d6cbe4
@@ -77,7 +80,7 @@ zabbix_export:
               value: memory
           triggers:
             - uuid: 778cb90a4df94c6ca1fc902c146bf40f
-              expression: 'last(/Linux by Zabbix agent - Memory Monitoring/vm.memory.size[usedpercent])>{$MEMORY.UTIL.MAX}'
+              expression: 'last(/Linux agent - Memory Monitoring/vm.memory.size[usedpercent])>{$MEMORY.UTIL.MAX}'
               name: 已用物理内存使用率
               priority: AVERAGE
         - uuid: 7d531ebe9e254f39a1f9fda6b6afb823
@@ -106,17 +109,17 @@ zabbix_export:
         - color: 1A7C11
           calc_fnc: ALL
           item:
-            host: 'Linux by Zabbix agent - Memory Monitoring'
+            host: 'Linux agent - Memory Monitoring'
             key: 'vm.memory.size[total]'
         - sortorder: '1'
           color: '274482'
           calc_fnc: ALL
           item:
-            host: 'Linux by Zabbix agent - Memory Monitoring'
+            host: 'Linux agent - Memory Monitoring'
             key: 'vm.memory.size[used]'
         - sortorder: '2'
           color: F63100
           calc_fnc: ALL
           item:
-            host: 'Linux by Zabbix agent - Memory Monitoring'
+            host: 'Linux agent - Memory Monitoring'
             key: 'vm.memory.size[usedpercent]'
