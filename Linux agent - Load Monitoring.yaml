@@ -53,7 +53,7 @@ zabbix_export:
   triggers:
     - uuid: 016ff76941674993aa373d09f4d7464e
       expression: |
-        min(/Linux agent - Load Monitoring/system.cpu.load[all,avg1],5m)/last(/Linux agent - Load Monitoring/system.cpu.num)>{$LOAD_AVG_PER_CPU.MAX}
+        min(/Linux agent - Load Monitoring/system.cpu.load[all,avg1],5m)/last(/Linux agent - Load Monitoring/system.cpu.num)>={$LOAD_AVG_PER_CPU.MAX}
         and last(/Linux agent - Load Monitoring/system.cpu.load[all,avg5])>0
         and last(/Linux agent - Load Monitoring/system.cpu.load[all,avg15])>0
       recovery_mode: RECOVERY_EXPRESSION
