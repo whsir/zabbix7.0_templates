@@ -5,8 +5,8 @@ zabbix_export:
       name: Templates
   templates:
     - uuid: 43a7c6430aa1437ebd64a1ef49ce8cb7
-      template: 'Linux agent - FS Monitoring'
-      name: 'Linux agent - FS Monitoring'
+      template: 'Linux agent - Filesystem Monitoring'
+      name: 'Linux agent - Filesystem Monitoring'
       description: 'Zabbix 7.0文件系统空间监控模板。'
       vendor:
         name: whsir
@@ -75,7 +75,7 @@ zabbix_export:
                   value: '{#FSTYPE}'
               trigger_prototypes:
                 - uuid: 866e9f5794b443e6aafd6769ff4671dd
-                  expression: 'last(/Linux agent - FS Monitoring/vfs.fs.size[{#FSNAME},pused])>{$PUSED.UTIL.MAX}'
+                  expression: 'last(/Linux agent - Filesystem Monitoring/vfs.fs.size[{#FSNAME},pused])>{$PUSED.UTIL.MAX}'
                   name: 'Linux: [{#FSNAME}]: 空间不足'
                   priority: AVERAGE
             - uuid: 1c3451e4f6e34070a2dc33761153c8af
@@ -109,19 +109,19 @@ zabbix_export:
                 - color: 1A7C11
                   calc_fnc: ALL
                   item:
-                    host: 'Linux agent - FS Monitoring'
+                    host: 'Linux agent - Filesystem Monitoring'
                     key: 'vfs.fs.size[{#FSNAME},total]'
                 - sortorder: '1'
                   color: '274482'
                   calc_fnc: ALL
                   item:
-                    host: 'Linux agent - FS Monitoring'
+                    host: 'Linux agent - Filesystem Monitoring'
                     key: 'vfs.fs.size[{#FSNAME},used]'
                 - sortorder: '2'
                   color: F63100
                   calc_fnc: ALL
                   item:
-                    host: 'Linux agent - FS Monitoring'
+                    host: 'Linux agent - Filesystem Monitoring'
                     key: 'vfs.fs.size[{#FSNAME},pused]'
           overrides:
             - name: 跳过动态的元数据收集
