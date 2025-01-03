@@ -38,7 +38,6 @@ zabbix_export:
             - uuid: 1f0609a16ea744e4a1b50902848ed68b
               name: '[{#FSNAME}]可用率'
               key: 'vfs.fs.inode[{#FSNAME},pfree]'
-              delay: 10s
               value_type: FLOAT
               units: '%'
               tags:
@@ -51,7 +50,6 @@ zabbix_export:
             - uuid: 5a9503f03a244fd5ace225cea9b18c69
               name: '[{#FSNAME}]可用容量'
               key: 'vfs.fs.size[{#FSNAME},free]'
-              delay: 10s
               units: B
               tags:
                 - tag: component
@@ -63,7 +61,6 @@ zabbix_export:
             - uuid: 271585a6ef294ddab61024573b3ca80f
               name: '[{#FSNAME}]使用率'
               key: 'vfs.fs.size[{#FSNAME},pused]'
-              delay: 10s
               value_type: FLOAT
               units: '%'
               tags:
@@ -81,7 +78,6 @@ zabbix_export:
             - uuid: 1c3451e4f6e34070a2dc33761153c8af
               name: '[{#FSNAME}]总空间容量'
               key: 'vfs.fs.size[{#FSNAME},total]'
-              delay: 10s
               units: B
               tags:
                 - tag: component
@@ -93,7 +89,6 @@ zabbix_export:
             - uuid: b68eb5b9c4de4e228cb7bf347befec0d
               name: '[{#FSNAME}]已使用容量'
               key: 'vfs.fs.size[{#FSNAME},used]'
-              delay: 10s
               units: B
               tags:
                 - tag: component
