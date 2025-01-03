@@ -1,0 +1,87 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 067961090fbf40e7ab8f62aa1e9bf4f5
+      template: 'Linux agent - Load Monitoring'
+      name: 'Linux agent - Load Monitoring'
+      description: 'Zabbix 7.0系统负载监控模板。'
+      vendor:
+        name: whsir
+        version: 7.0-1
+      groups:
+        - name: Templates
+      items:
+        - uuid: fbc14b4774c04b3a905ff1588f19bed4
+          name: 1分钟内的平均负载
+          key: 'system.cpu.load[all,avg1]'
+          value_type: FLOAT
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: c6e6444efae5484e9fec75f42d797ed3
+          name: 5分钟内的平均负载
+          key: 'system.cpu.load[all,avg5]'
+          value_type: FLOAT
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: 433c5fe1257747b1a0556dfa2ff876ac
+          name: 15分钟内的平均负载
+          key: 'system.cpu.load[all,avg15]'
+          value_type: FLOAT
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: eee7c72ed488479b9c340ed5ad1527b7
+          name: CPU数量
+          key: system.cpu.num
+          tags:
+            - tag: component
+              value: cpu
+      macros:
+        - macro: '{$LOAD_AVG_PER_CPU.MAX}'
+          value: '1.5'
+          description: 负载阈值为CPU核心数的1.5倍
+  triggers:
+    - uuid: 016ff76941674993aa373d09f4d7464e
+      expression: |
+        min(/Linux agent - Load Monitoring/system.cpu.load[all,avg1],5m)/last(/Linux agent - Load Monitoring/system.cpu.num)>{$LOAD_AVG_PER_CPU.MAX}
+        and last(/Linux agent - Load Monitoring/system.cpu.load[all,avg5])>0
+        and last(/Linux agent - Load Monitoring/system.cpu.load[all,avg15])>0
+      recovery_mode: RECOVERY_EXPRESSION
+      recovery_expression: |
+        min(/Linux agent - Load Monitoring/system.cpu.load[all,avg1],5m)/last(/Linux agent - Load Monitoring/system.cpu.num)<{$LOAD_AVG_PER_CPU.MAX}
+        and last(/Linux agent - Load Monitoring/system.cpu.load[all,avg5])>0
+        and last(/Linux agent - Load Monitoring/system.cpu.load[all,avg15])>0
+      name: Linux平均负载过高
+      priority: AVERAGE
+  graphs:
+    - uuid: bd9a9ec9eb0c4aa49765d65316165df9
+      name: Linux系统负载
+      graph_items:
+        - color: 1A7C11
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - Load Monitoring'
+            key: 'system.cpu.load[all,avg1]'
+        - sortorder: '1'
+          color: '274482'
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - Load Monitoring'
+            key: 'system.cpu.load[all,avg5]'
+        - sortorder: '2'
+          color: F63100
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - Load Monitoring'
+            key: 'system.cpu.load[all,avg15]'
+        - sortorder: '3'
+          color: 2774A4
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - Load Monitoring'
+            key: system.cpu.num
