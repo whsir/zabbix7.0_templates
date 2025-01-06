@@ -1,0 +1,85 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: c85b0d46c6c14464b52096d5a523bcf7
+      template: 'Windows agent - Disk Monitoring'
+      name: 'Windows agent - Disk Monitoring'
+      description: 'Zabbix 7.0磁盘空间监控模板。'
+      vendor:
+        name: whsir
+        version: 7.0-1
+      groups:
+        - name: Templates
+      discovery_rules:
+        - uuid: f718932a5ffe4eaf90fad02b89dbeeae
+          name: Windows磁盘自动发现
+          key: vfs.fs.discovery
+          delay: 1h
+          filter:
+            conditions:
+              - macro: '{#FSDRIVETYPE}'
+                value: fixed
+                formulaid: A
+          item_prototypes:
+            - uuid: 1af4e8f10a9d4bc7ae653315929572ca
+              name: '[{#FSNAME}]可用容量'
+              key: 'vfs.fs.size[{#FSNAME},free]'
+              units: B
+            - uuid: 0f58bafe716c4a22a6f9f9c8b2ee121f
+              name: '[{#FSNAME}]可用率'
+              key: 'vfs.fs.size[{#FSNAME},pfree]'
+              value_type: FLOAT
+              units: '%'
+            - uuid: d00a5f6c41644c85b33e281fbda21563
+              name: '[{#FSNAME}]使用率'
+              key: 'vfs.fs.size[{#FSNAME},pused]'
+              value_type: FLOAT
+              units: '%'
+              trigger_prototypes:
+                - uuid: 15fa4cde827346a185343eb2d1410eb1
+                  expression: 'last(/Windows agent - Disk Monitoring/vfs.fs.size[{#FSNAME},pused])>={$PUSED.UTIL.MAX}'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/Windows agent - Disk Monitoring/vfs.fs.size[{#FSNAME},pused])<{$PUSED.UTIL.MAX}'
+                  name: 'Windows [{#FSNAME}]: 空间不足'
+                  priority: AVERAGE
+            - uuid: ba089f47b3fa43b98b3632c4b1b7dd8f
+              name: '[{#FSNAME}]总空间容量'
+              key: 'vfs.fs.size[{#FSNAME},total]'
+              units: B
+            - uuid: bed702137310437f8f5bfd85be94d89d
+              name: '[{#FSNAME}]已使用容量'
+              key: 'vfs.fs.size[{#FSNAME},used]'
+              units: B
+          graph_prototypes:
+            - uuid: 3978bf7824674833b5cfa749b7fcddeb
+              name: '磁盘使用率{#FSNAME}'
+              graph_items:
+                - color: 1A7C11
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Disk Monitoring'
+                    key: 'vfs.fs.size[{#FSNAME},pused]'
+                - sortorder: '1'
+                  color: '274482'
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Disk Monitoring'
+                    key: 'vfs.fs.size[{#FSNAME},free]'
+                - sortorder: '2'
+                  color: F63100
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Disk Monitoring'
+                    key: 'vfs.fs.size[{#FSNAME},total]'
+      tags:
+        - tag: class
+          value: os
+        - tag: target
+          value: Windows
+      macros:
+        - macro: '{$PUSED.UTIL.MAX}'
+          value: '90'
+          description: 空间使用率阈值
