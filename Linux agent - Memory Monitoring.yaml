@@ -107,6 +107,26 @@ zabbix_export:
           value: '90'
           description: 内存使用率阈值
   graphs:
+    - uuid: 9c1164b84b6d4a1baffcfce9c4465211
+      name: swap内存
+      graph_items:
+        - color: 1A7C11
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - Memory Monitoring'
+            key: 'system.swap.size[,total]'
+        - sortorder: '1'
+          color: '274482'
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - Memory Monitoring'
+            key: 'system.swap.size[,used]'
+        - sortorder: '2'
+          color: F63100
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - Memory Monitoring'
+            key: 'system.swap.size[,pused]'
     - uuid: c2787451320e435599bcf064e1a635df
       name: 物理内存
       graph_items:
