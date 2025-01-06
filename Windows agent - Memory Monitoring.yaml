@@ -43,6 +43,11 @@ zabbix_export:
           tags:
             - tag: component
               value: memory
+      tags:
+        - tag: class
+          value: os
+        - tag: target
+          value: Windows
   graphs:
     - uuid: e1febf2203b34206ae82a7405bae22fe
       name: 物理内存
