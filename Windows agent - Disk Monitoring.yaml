@@ -31,7 +31,7 @@ zabbix_export:
               tags:
                 - tag: component
                   value: storage
-                - tag: filesystem
+                - tag: disk
                   value: '{#FSNAME}'
                 - tag: fstype
                   value: '{#FSTYPE}'
@@ -43,7 +43,7 @@ zabbix_export:
               tags:
                 - tag: component
                   value: storage
-                - tag: filesystem
+                - tag: disk
                   value: '{#FSNAME}'
                 - tag: fstype
                   value: '{#FSTYPE}'
@@ -55,7 +55,7 @@ zabbix_export:
               tags:
                 - tag: component
                   value: storage
-                - tag: filesystem
+                - tag: disk
                   value: '{#FSNAME}'
                 - tag: fstype
                   value: '{#FSTYPE}'
@@ -73,7 +73,7 @@ zabbix_export:
               tags:
                 - tag: component
                   value: storage
-                - tag: filesystem
+                - tag: disk
                   value: '{#FSNAME}'
                 - tag: fstype
                   value: '{#FSTYPE}'
@@ -84,7 +84,7 @@ zabbix_export:
               tags:
                 - tag: component
                   value: storage
-                - tag: filesystem
+                - tag: disk
                   value: '{#FSNAME}'
                 - tag: fstype
                   value: '{#FSTYPE}'
