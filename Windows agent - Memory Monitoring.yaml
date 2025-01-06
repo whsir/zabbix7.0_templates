@@ -1,0 +1,66 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: c92086382ed2415b80fbaead0ccf2328
+      template: 'Windows agent - Memory Monitoring'
+      name: 'Windows agent - Memory Monitoring'
+      description: 'Zabbix 7.0内存监控模板。'
+      vendor:
+        name: whsir
+        version: 7.0-1
+      groups:
+        - name: Templates
+      items:
+        - uuid: c4bf5f4e1c024ea3bb77126eee6e4cf3
+          name: 可用物理内存
+          key: 'vm.memory.size[free]'
+          units: B
+          tags:
+            - tag: component
+              value: memory
+        - uuid: db687ea9440b4b8784d7241494e46020
+          name: 已用物理内存使用率
+          key: 'vm.memory.size[pused]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: component
+              value: memory
+        - uuid: a6c7f8be48544ee29e730958e8e6b4c6
+          name: 总物理内存
+          key: 'vm.memory.size[total]'
+          units: B
+          tags:
+            - tag: component
+              value: memory
+        - uuid: 5525eae7ec8b42c5aa402752b9c5d20d
+          name: 已用物理内存
+          key: 'vm.memory.size[used]'
+          units: B
+          tags:
+            - tag: component
+              value: memory
+  graphs:
+    - uuid: e1febf2203b34206ae82a7405bae22fe
+      name: 物理内存
+      graph_items:
+        - color: 1A7C11
+          calc_fnc: ALL
+          item:
+            host: 'Windows agent - Memory Monitoring'
+            key: 'vm.memory.size[total]'
+        - sortorder: '1'
+          color: '274482'
+          calc_fnc: ALL
+          item:
+            host: 'Windows agent - Memory Monitoring'
+            key: 'vm.memory.size[used]'
+        - sortorder: '2'
+          color: F63100
+          calc_fnc: ALL
+          item:
+            host: 'Windows agent - Memory Monitoring'
+            key: 'vm.memory.size[pused]'
