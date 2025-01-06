@@ -48,6 +48,25 @@ zabbix_export:
                   value: '{#FSNAME}'
                 - tag: fstype
                   value: '{#FSTYPE}'
+            - uuid: bed590fbeb164828a22f6c94c81a17f6
+              name: '[{#FSNAME}]Inodes使用率'
+              key: 'vfs.fs.inode[{#FSNAME},pused]'
+              value_type: FLOAT
+              units: '%'
+              tags:
+                - tag: component
+                  value: Inodes
+                - tag: filesystem
+                  value: '{#FSNAME}'
+                - tag: fstype
+                  value: '{#FSTYPE}'
+              trigger_prototypes:
+                - uuid: dc970796b461468bbe2b89c7bc047849
+                  expression: 'last(/Linux agent - Filesystem Monitoring/vfs.fs.inode[{#FSNAME},pused])>={$PUSED.UTIL.MAX}'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/Linux agent - Filesystem Monitoring/vfs.fs.inode[{#FSNAME},pused])<{$PUSED.UTIL.MAX}'
+                  name: 'Linux: [{#FSNAME}]: Inodes数不足'
+                  priority: AVERAGE
             - uuid: 5a9503f03a244fd5ace225cea9b18c69
               name: '[{#FSNAME}]可用容量'
               key: 'vfs.fs.size[{#FSNAME},free]'
@@ -102,7 +121,7 @@ zabbix_export:
                   value: '{#FSTYPE}'
           graph_prototypes:
             - uuid: 2d6c1042d72f4496b7f1eafeab077f33
-              name: 'FS [{#FSTYPE}({#FSNAME})]:磁盘图形'
+              name: 'FS [{#FSTYPE}({#FSNAME})]:图形'
               graph_items:
                 - color: 1A7C11
                   calc_fnc: ALL
@@ -121,6 +140,12 @@ zabbix_export:
                   item:
                     host: 'Linux agent - Filesystem Monitoring'
                     key: 'vfs.fs.size[{#FSNAME},pused]'
+                - sortorder: '3'
+                  color: 2774A4
+                  calc_fnc: ALL
+                  item:
+                    host: 'Linux agent - Filesystem Monitoring'
+                    key: 'vfs.fs.inode[{#FSNAME},pused]'
           overrides:
             - name: 跳过动态的元数据收集
               step: '1'
