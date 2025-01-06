@@ -17,6 +17,7 @@ zabbix_export:
         - uuid: 0fb3ae8754014b00b4d770bfa53f9351
           name: Linux磁盘自动发现
           key: vfs.fs.discovery
+          delay: 1h
           filter:
             evaltype: AND
             conditions:
