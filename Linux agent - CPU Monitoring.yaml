@@ -1,0 +1,179 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 8a00b84dccf148c0b7c85dbbd63b5bec
+      template: 'Linux agent - CPU Monitoring'
+      name: 'Linux agent - CPU Monitoring'
+      description: 'Zabbix 7.0 CPU监控模板。'
+      vendor:
+        name: whsir
+        version: 7.0-1
+      groups:
+        - name: Templates
+      items:
+        - uuid: 16b42a0df0784674afbc497a5d8ab08b
+          name: 虚拟机CPU利用率
+          key: 'system.cpu.util[all,guest,avg1]'
+          value_type: FLOAT
+          units: '%'
+          description: 虚拟机占用宿主机CPU的百分比。
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: 3345691f0af5464a89a59de39ef0f30d
+          name: 低优先级虚拟机CPU利用率
+          key: 'system.cpu.util[all,guest_nice,avg1]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: 24f52224adcf49099e796700ab59afc1
+          name: CPU空闲率
+          key: 'system.cpu.util[all,idle,avg1]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: component
+              value: cpu
+          triggers:
+            - uuid: ae6217cc910f467aa793b9c464d7f4a6
+              expression: 'last(/Linux agent - CPU Monitoring/system.cpu.util[all,idle,avg1])<={$CPU.IDLE.CRIT}'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Linux agent - CPU Monitoring/system.cpu.util[all,idle,avg1])>{$CPU.IDLE.CRIT}'
+              name: CPU空闲率过低
+              priority: AVERAGE
+        - uuid: 2c8d41b1aa464c03adb3a1895ca91ec2
+          name: CPU处理硬件中断的时间
+          key: 'system.cpu.util[all,interrupt,avg1]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: ac6f73c25e2a4895b946cc33200d787a
+          name: CPU等待I/O操作完成的时间
+          key: 'system.cpu.util[all,iowait,avg1]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: 732a5158c9324cbdb2eeec06a2397d8f
+          name: 低优先级CPU利用率
+          key: 'system.cpu.util[all,nice,avg1]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: 67cec1c06e0f48fb86a55024c521a312
+          name: CPU处理软件中断的时间
+          key: 'system.cpu.util[all,softirq,avg1]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: e6720e73bcb34a5aa2d92a9e6f82833e
+          name: CPU被偷取的利用率
+          key: 'system.cpu.util[all,steal,avg1]'
+          value_type: FLOAT
+          units: '%'
+          description: 表示在虚拟化环境中，CPU被其他虚拟机占用的时间比例。值越高，表示该虚拟机面临的资源竞争越严重，可能会影响性能。
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: 50977f7303a94f7896f5281f1c6da517
+          name: CPU系统利用率
+          key: 'system.cpu.util[all,system,avg1]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: component
+              value: cpu
+        - uuid: 2ed217b47a214b31b5564883fcfbc946
+          name: CPU用户利用率
+          key: 'system.cpu.util[all,user,avg1]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: component
+              value: cpu
+      tags:
+        - tag: class
+          value: os
+        - tag: target
+          value: linux
+      macros:
+        - macro: '{$CPU.IDLE.CRIT}'
+          value: '10'
+          description: CPU空闲率阈值
+  graphs:
+    - uuid: 7a1d1070c63241f5aafa05aed3d2c72e
+      name: CPU利用率
+      graph_items:
+        - color: 1A7C11
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - CPU Monitoring'
+            key: 'system.cpu.util[all,interrupt,avg1]'
+        - sortorder: '1'
+          color: '274482'
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - CPU Monitoring'
+            key: 'system.cpu.util[all,softirq,avg1]'
+        - sortorder: '2'
+          color: F63100
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - CPU Monitoring'
+            key: 'system.cpu.util[all,user,avg1]'
+        - sortorder: '3'
+          color: 2774A4
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - CPU Monitoring'
+            key: 'system.cpu.util[all,iowait,avg1]'
+        - sortorder: '4'
+          color: A54F10
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - CPU Monitoring'
+            key: 'system.cpu.util[all,system,avg1]'
+        - sortorder: '5'
+          color: FC6EA3
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - CPU Monitoring'
+            key: 'system.cpu.util[all,steal,avg1]'
+        - sortorder: '6'
+          color: 6C59DC
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - CPU Monitoring'
+            key: 'system.cpu.util[all,nice,avg1]'
+        - sortorder: '7'
+          color: AC8C14
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - CPU Monitoring'
+            key: 'system.cpu.util[all,guest_nice,avg1]'
+        - sortorder: '8'
+          color: 611F27
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - CPU Monitoring'
+            key: 'system.cpu.util[all,guest,avg1]'
+    - uuid: 3ef2bdbd87ca419484eb28f407d5d66b
+      name: CPU空闲率
+      graph_items:
+        - color: 1A7C11
+          calc_fnc: ALL
+          item:
+            host: 'Linux agent - CPU Monitoring'
+            key: 'system.cpu.util[all,idle,avg1]'
