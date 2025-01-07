@@ -29,6 +29,13 @@ zabbix_export:
           tags:
             - tag: component
               value: memory
+          triggers:
+            - uuid: 12a9f373817141579c7d79d76613d9d5
+              expression: 'last(/Windows agent - Memory Monitoring/vm.memory.size[pused])>={$MEMORY.UTIL.MAX}'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'last(/Windows agent - Memory Monitoring/vm.memory.size[pused])<{$MEMORY.UTIL.MAX}'
+              name: 已用物理内存使用率
+              priority: AVERAGE
         - uuid: a6c7f8be48544ee29e730958e8e6b4c6
           name: 总物理内存
           key: 'vm.memory.size[total]'
@@ -48,6 +55,10 @@ zabbix_export:
           value: os
         - tag: target
           value: Windows
+      macros:
+        - macro: '{$MEMORY.UTIL.MAX}'
+          value: '90'
+          description: 内存使用率阈值
   graphs:
     - uuid: e1febf2203b34206ae82a7405bae22fe
       name: 物理内存
