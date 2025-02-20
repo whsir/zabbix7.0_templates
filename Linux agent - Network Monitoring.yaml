@@ -1,0 +1,90 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: e4757c80ab0c4bc2867cbc82871e1f18
+      template: 'Linux agent - Network Monitoring'
+      name: 'Linux agent - Network Monitoring'
+      description: 'Zabbix 7.0网络监控模板。'
+      vendor:
+        name: whsir
+        version: 7.0-1
+      groups:
+        - name: Templates
+      discovery_rules:
+        - uuid: f28c28d01e2c452488c7ef0d58072877
+          name: Linux网络自动发现
+          key: net.if.discovery
+          delay: 1h
+          filter:
+            evaltype: AND
+            conditions:
+              - macro: '{#IFNAME}'
+                value: '{$NET.IF.IFNAME.MATCHES}'
+                formulaid: A
+              - macro: '{#IFNAME}'
+                value: '{$NET.IF.IFNAME.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: B
+          item_prototypes:
+            - uuid: 95e4c6c6f25948de938298a9cdd9c4c0
+              name: 'Interface {#IFNAME}: Inbound'
+              key: 'net.if.in["{#IFNAME}"]'
+              units: bps
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: component
+                  value: network
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: 122b04991a6045efa166ffeeae23e285
+              name: 'Interface {#IFNAME}: Outbound'
+              key: 'net.if.out["{#IFNAME}"]'
+              units: bps
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: component
+                  value: network
+                - tag: interface
+                  value: '{#IFNAME}'
+          graph_prototypes:
+            - uuid: ef323c201bae45979599964f4fda2486
+              name: 'Interface {#IFNAME}: Network traffic'
+              graph_items:
+                - color: 1A7C11
+                  calc_fnc: ALL
+                  item:
+                    host: 'Linux agent - Network Monitoring'
+                    key: 'net.if.in["{#IFNAME}"]'
+                - sortorder: '1'
+                  color: FF0000
+                  calc_fnc: ALL
+                  item:
+                    host: 'Linux agent - Network Monitoring'
+                    key: 'net.if.out["{#IFNAME}"]'
+      tags:
+        - tag: class
+          value: os
+        - tag: target
+          value: linux
+      macros:
+        - macro: '{$NET.IF.IFNAME.MATCHES}'
+          value: '^.*$'
+          description: 用于网络接口发现
+        - macro: '{$NET.IF.IFNAME.NOT_MATCHES}'
+          value: '(^Software Loopback Interface$|^NULL\d*\.?\d*$|^[Ll]o[\d.]*$|^[Ss]ystem$|^Nu\d+$|^veth[\da-zA-Z]+$|^docker\d+$|^br-[a-z0-9]{12}$|^cni-podman\d+$)'
+          description: 默认情况下，过滤掉loopbacks(如lo)、nulls空接口、docker的veth和docker0。
