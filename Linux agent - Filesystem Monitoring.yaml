@@ -172,7 +172,7 @@ zabbix_export:
           value: .+
           description: 用于文件系统发现
         - macro: '{$VFS.FS.FSNAME.NOT_MATCHES}'
-          value: ^(/dev|/sys|/run|/proc|.+/shm$)
+          value: ^(/dev|/sys|/run|/proc|.+/shm$|^/var/lib/containers/storage/overlay)
           description: 用于文件系统发现
         - macro: '{$VFS.FS.FSTYPE.MATCHES}'
           value: ^(btrfs|ext2|ext3|ext4|reiser|xfs|ffs|ufs|jfs|jfs2|vxfs|hfs|apfs|refs|ntfs|fat32|zfs)$
