@@ -1,0 +1,49 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: 5712d70baa2a4703a9ee5f1878f18b5c
+      template: 'Windows agent - CPU Monitoring'
+      name: 'Windows agent - CPU Monitoring'
+      description: 'Zabbix 7.0 CPU监控模板。'
+      vendor:
+        name: whsir
+        version: 7.0-1
+      groups:
+        - name: Templates
+      items:
+        - uuid: 93152cb44bcf4a38be5ec0272075c8a6
+          name: CPU使用率
+          key: 'perf_counter["\Processor(_Total)\% Processor Time"]'
+          value_type: FLOAT
+          units: '%'
+          tags:
+            - tag: component
+              value: cpu
+          triggers:
+            - uuid: 568aa54a3ed24ea9bb4ceba68ace65f9
+              expression: 'avg(/Windows agent - CPU Monitoring/perf_counter["\Processor(_Total)\% Processor Time"],#3)>={$CPU.UTIL.MAX}'
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: 'avg(/Windows agent - CPU Monitoring/perf_counter["\Processor(_Total)\% Processor Time"],#3)<{$CPU.UTIL.MAX}'
+              name: CPU使用率
+              priority: AVERAGE
+      tags:
+        - tag: class
+          value: os
+        - tag: target
+          value: Windows
+      macros:
+        - macro: '{$CPU.UTIL.MAX}'
+          value: '90'
+          description: CPU使用率阈值
+  graphs:
+    - uuid: b8d1c9568e1941d88490a96629c56d66
+      name: CPU
+      graph_items:
+        - color: 1A7C11
+          calc_fnc: ALL
+          item:
+            host: 'Windows agent - CPU Monitoring'
+            key: 'perf_counter["\Processor(_Total)\% Processor Time"]'
