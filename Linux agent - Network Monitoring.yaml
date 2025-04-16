@@ -30,7 +30,7 @@ zabbix_export:
                 formulaid: B
           item_prototypes:
             - uuid: 95e4c6c6f25948de938298a9cdd9c4c0
-              name: 'Interface {#IFNAME}: Inbound'
+              name: 'Interface {#IFNAME}: 入站下行流量'
               key: 'net.if.in["{#IFNAME}"]'
               units: bps
               preprocessing:
@@ -46,7 +46,7 @@ zabbix_export:
                 - tag: interface
                   value: '{#IFNAME}'
             - uuid: 122b04991a6045efa166ffeeae23e285
-              name: 'Interface {#IFNAME}: Outbound'
+              name: 'Interface {#IFNAME}: 出站上行流量'
               key: 'net.if.out["{#IFNAME}"]'
               units: bps
               preprocessing:
