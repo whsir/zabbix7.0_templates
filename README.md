@@ -10,3 +10,4 @@
 | Windows agent - CPU Monitoring.yaml | 否 | Windows | CPU使用率 |
 | Windows agent - Disk Monitoring.yaml | 是 | Windows | 使用率、可用容量、可用率、已使用容量、总空间容量 |
 | Windows agent - Memory Monitoring.yaml | 否 | Windows | 可用物理内存、已用物理内存、已用物理内存使用率、总物理内存 |
+| Windows agent - Network Monitoring.yaml | 是 | Windows | Windows活动物理网卡状态监测 (WMI)、入站下行流量、出站上行流量、入站下行错误的数据包、入站丢弃包数、出站上行错误的数据包、出站丢弃包数、网络接口状态、网络接口类型、网络接口速率 |
