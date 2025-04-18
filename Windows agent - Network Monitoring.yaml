@@ -1,0 +1,457 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: ae0ce937476548368b42f64ae9fa7dc4
+      template: 'Windows agent - Network Monitoring'
+      name: 'Windows agent - Network Monitoring'
+      vendor:
+        name: whsir
+        version: 7.0-1
+      groups:
+        - name: Templates
+      items:
+        - uuid: b291eb86d5ea4088a4a6defacdd6b488
+          name: 'Windows活动物理网卡状态监测 (WMI)'
+          key: 'wmi.getall[root\cimv2,"select Name,Description,NetConnectionID,Speed,AdapterTypeId,NetConnectionStatus,GUID from win32_networkadapter where PhysicalAdapter=True and NetConnectionStatus>0"]'
+          history: '0'
+          value_type: TEXT
+          trends: '0'
+          description: 用于网络接口发现。
+          tags:
+            - tag: component
+              value: raw
+      discovery_rules:
+        - uuid: b291eb86d5ea4088a4a6defacdd6b489
+          name: Windows网络自动发现
+          type: DEPENDENT
+          key: net.if.discovery
+          delay: '0'
+          filter:
+            evaltype: AND
+            conditions:
+              - macro: '{#IFALIAS}'
+                value: '{$NET.IF.IFALIAS.MATCHES}'
+                formulaid: A
+              - macro: '{#IFALIAS}'
+                value: '{$NET.IF.IFALIAS.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: B
+              - macro: '{#IFDESCR}'
+                value: '{$NET.IF.IFDESCR.MATCHES}'
+                formulaid: C
+              - macro: '{#IFDESCR}'
+                value: '{$NET.IF.IFDESCR.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: D
+              - macro: '{#IFNAME}'
+                value: '{$NET.IF.IFNAME.MATCHES}'
+                formulaid: E
+              - macro: '{#IFNAME}'
+                value: '{$NET.IF.IFNAME.NOT_MATCHES}'
+                operator: NOT_MATCHES_REGEX
+                formulaid: F
+          item_prototypes:
+            - uuid: b291eb86d5ea4088a4a6defacdd6b490
+              name: '网卡 {#IFNAME}({#IFALIAS}): 入站丢弃包数'
+              key: 'net.if.in["{#IFGUID}",dropped]'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: b291eb86d5ea4088a4a6defacdd6b491
+              name: '网卡 {#IFNAME}({#IFALIAS}): 入站下行错误的数据包'
+              key: 'net.if.in["{#IFGUID}",errors]'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: b291eb86d5ea4088a4a6defacdd6b492
+              name: '网卡 {#IFNAME}({#IFALIAS}): 入站下行流量'
+              key: 'net.if.in["{#IFGUID}"]'
+              units: bps
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: b291eb86d5ea4088a4a6defacdd6b493
+              name: '网卡 {#IFNAME}({#IFALIAS}): 出站丢弃包数'
+              key: 'net.if.out["{#IFGUID}",dropped]'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: b291eb86d5ea4088a4a6defacdd6b494
+              name: '网卡 {#IFNAME}({#IFALIAS}): 出站上行错误的数据包'
+              key: 'net.if.out["{#IFGUID}",errors]'
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: b291eb86d5ea4088a4a6defacdd6b495
+              name: '网卡 {#IFNAME}({#IFALIAS}): 出站上行流量'
+              key: 'net.if.out["{#IFGUID}"]'
+              units: bps
+              preprocessing:
+                - type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                - type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: b291eb86d5ea4088a4a6defacdd6b496
+              name: '网卡 {#IFNAME}({#IFALIAS}): 网络接口速率'
+              type: DEPENDENT
+              key: 'net.if.speed["{#IFGUID}"]'
+              delay: '0'
+              trends: '0'
+              units: bps
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$[?(@.GUID == "{#IFGUID}")].Speed.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+                - type: JAVASCRIPT
+                  parameters:
+                    - 'return (value==''9223372036854775807'' ? 0 : value)'
+                - type: DISCARD_UNCHANGED_HEARTBEAT
+                  parameters:
+                    - 1h
+              master_item:
+                key: 'wmi.getall[root\cimv2,"select Name,Description,NetConnectionID,Speed,AdapterTypeId,NetConnectionStatus,GUID from win32_networkadapter where PhysicalAdapter=True and NetConnectionStatus>0"]'
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+            - uuid: b291eb86d5ea4088a4a6defacdd6b497
+              name: '网卡 {#IFNAME}({#IFALIAS}): 网络接口状态'
+              type: DEPENDENT
+              key: 'net.if.status["{#IFGUID}"]'
+              delay: '0'
+              trends: '0'
+              valuemap:
+                name: 'Win32_NetworkAdapter::NetConnectionStatus'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$[?(@.GUID == "{#IFGUID}")].NetConnectionStatus.first()'
+                - type: DISCARD_UNCHANGED_HEARTBEAT
+                  parameters:
+                    - 1h
+              master_item:
+                key: 'wmi.getall[root\cimv2,"select Name,Description,NetConnectionID,Speed,AdapterTypeId,NetConnectionStatus,GUID from win32_networkadapter where PhysicalAdapter=True and NetConnectionStatus>0"]'
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+              trigger_prototypes:
+                - uuid: b291eb86d5ea4088a4a6defacdd6b499
+                  expression: '{$IFCONTROL:"{#IFNAME}"}=1 and last(/Windows agent - Network Monitoring/net.if.status["{#IFGUID}"])<>2 and (last(/Windows agent - Network Monitoring/net.if.status["{#IFGUID}"],#1)<>last(/Windows agent - Network Monitoring/net.if.status["{#IFGUID}"],#2))'
+                  recovery_mode: RECOVERY_EXPRESSION
+                  recovery_expression: 'last(/Windows agent - Network Monitoring/net.if.status["{#IFGUID}"])=2 or {$IFCONTROL:"{#IFNAME}"}=0'
+                  name: 'Windows: 网卡 {#IFNAME}({#IFALIAS}): 连接中断'
+                  priority: AVERAGE
+                  description: |
+                    触发：宏 {$IFCONTROL} 等于1（启用监控）且最新值不等于2（即异常）且最近两次采集的状态值不同则触发告警。
+                    恢复：最新值等于状态码2（正常）或宏 {$IFCONTROL} 等于0（关闭监控）恢复。
+                  manual_close: 'YES'
+                  tags:
+                    - tag: scope
+                      value: availability
+            - uuid: b291eb86d5ea4088a4a6defacdd6b479
+              name: '网卡 {#IFNAME}({#IFALIAS}): 网络接口类型'
+              type: DEPENDENT
+              key: 'net.if.type["{#IFGUID}"]'
+              delay: '0'
+              trends: '0'
+              valuemap:
+                name: 'Win32_NetworkAdapter::AdapterTypeId'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$[?(@.GUID == "{#IFGUID}")].AdapterTypeId.first()'
+                - type: DISCARD_UNCHANGED_HEARTBEAT
+                  parameters:
+                    - 1h
+              master_item:
+                key: 'wmi.getall[root\cimv2,"select Name,Description,NetConnectionID,Speed,AdapterTypeId,NetConnectionStatus,GUID from win32_networkadapter where PhysicalAdapter=True and NetConnectionStatus>0"]'
+              tags:
+                - tag: component
+                  value: network
+                - tag: description
+                  value: '{#IFALIAS}'
+                - tag: interface
+                  value: '{#IFNAME}'
+          trigger_prototypes:
+            - uuid: b291eb86d5ea4088a4a6defacdd6b477
+              expression: |
+                (avg(/Windows agent - Network Monitoring/net.if.in["{#IFGUID}"],15m)>({$IF.UTIL.MAX:"{#IFNAME}"}/100)*last(/Windows agent - Network Monitoring/net.if.speed["{#IFGUID}"]) or
+                avg(/Windows agent - Network Monitoring/net.if.out["{#IFGUID}"],15m)>({$IF.UTIL.MAX:"{#IFNAME}"}/100)*last(/Windows agent - Network Monitoring/net.if.speed["{#IFGUID}"])) and
+                last(/Windows agent - Network Monitoring/net.if.speed["{#IFGUID}"])>0
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: |
+                avg(/Windows agent - Network Monitoring/net.if.in["{#IFGUID}"],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/Windows agent - Network Monitoring/net.if.speed["{#IFGUID}"]) and
+                avg(/Windows agent - Network Monitoring/net.if.out["{#IFGUID}"],15m)<(({$IF.UTIL.MAX:"{#IFNAME}"}-3)/100)*last(/Windows agent - Network Monitoring/net.if.speed["{#IFGUID}"])
+              name: 'Windows: 网卡 {#IFNAME}({#IFALIAS}): 流量'
+              priority: WARNING
+              description: |
+                触发：当网络接口 {#IFNAME} 的入方向或出方向流量（15分钟平均值）超过设定阈值（接口最大速率的 {$IF.UTIL.MAX}%）时触发告警。
+                恢复：当入方向和出方向流量（15分钟平均值）均低于阈值（接口最大速率的 {$IF.UTIL.MAX}% -3%）时，告警自动恢复。
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: performance
+            - uuid: b291eb86d5ea4088a4a6defacdd6b478
+              expression: |
+                change(/Windows agent - Network Monitoring/net.if.speed["{#IFGUID}"])<0 and
+                last(/Windows agent - Network Monitoring/net.if.speed["{#IFGUID}"])>0 and
+                last(/Windows agent - Network Monitoring/net.if.status["{#IFGUID}"])=2
+              name: 'Windows: 网卡 {#IFNAME}({#IFALIAS}): 速率降低'
+              priority: INFO
+              description: 网卡速率发生下降（当前速率仍大于0且接口处于正常连接状态）时触发告警。
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: capacity
+            - uuid: b291eb86d5ea4088a4a6defacdd6b476
+              expression: |
+                max(/Windows agent - Network Monitoring/net.if.in["{#IFGUID}",errors],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"}
+                or max(/Windows agent - Network Monitoring/net.if.out["{#IFGUID}",errors],5m)>{$IF.ERRORS.WARN:"{#IFNAME}"}
+              recovery_mode: RECOVERY_EXPRESSION
+              recovery_expression: |
+                max(/Windows agent - Network Monitoring/net.if.in["{#IFGUID}",errors],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
+                and max(/Windows agent - Network Monitoring/net.if.out["{#IFGUID}",errors],5m)<{$IF.ERRORS.WARN:"{#IFNAME}"}*0.8
+              name: 'Windows: 网卡 {#IFNAME}({#IFALIAS}): 错误的数据包'
+              priority: WARNING
+              description: |
+                触发：若接口 {#IFNAME} 的入站或出站错误包数量在近5分钟内的最大值超过设定阈值 {$IF.ERRORS.WARN}，则触发告警。
+                恢复：若接口 {#IFNAME} 的入站和出站错误包数量在近5分钟内的最大值低于设定阈值的80%，则标记为已恢复。
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: availability
+          graph_prototypes:
+            - uuid: 54278536ecad4cabb7cd477fb70013ad
+              name: '网卡 {#IFNAME}({#IFALIAS}): 网络接口'
+              graph_items:
+                - color: 1A7C11
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Network Monitoring'
+                    key: 'net.if.status["{#IFGUID}"]'
+                - sortorder: '1'
+                  color: '274482'
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Network Monitoring'
+                    key: 'net.if.type["{#IFGUID}"]'
+                - sortorder: '2'
+                  color: F63100
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Network Monitoring'
+                    key: 'net.if.speed["{#IFGUID}"]'
+            - uuid: b291eb86d5ea4088a4a6defacdd6b475
+              name: '网卡 {#IFNAME}({#IFALIAS}): 网络流量'
+              graph_items:
+                - drawtype: GRADIENT_LINE
+                  color: 1A7C11
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Network Monitoring'
+                    key: 'net.if.in["{#IFGUID}"]'
+                - sortorder: '1'
+                  color: FF0000
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Network Monitoring'
+                    key: 'net.if.out["{#IFGUID}"]'
+                - sortorder: '2'
+                  color: '274482'
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Network Monitoring'
+                    key: 'net.if.in["{#IFGUID}",errors]'
+                - sortorder: '3'
+                  color: F63100
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Network Monitoring'
+                    key: 'net.if.in["{#IFGUID}",dropped]'
+                - sortorder: '4'
+                  color: 2774A4
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Network Monitoring'
+                    key: 'net.if.out["{#IFGUID}",errors]'
+                - sortorder: '5'
+                  color: A54F10
+                  calc_fnc: ALL
+                  item:
+                    host: 'Windows agent - Network Monitoring'
+                    key: 'net.if.out["{#IFGUID}",dropped]'
+          master_item:
+            key: 'wmi.getall[root\cimv2,"select Name,Description,NetConnectionID,Speed,AdapterTypeId,NetConnectionStatus,GUID from win32_networkadapter where PhysicalAdapter=True and NetConnectionStatus>0"]'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  output = JSON.parse(value).map(function(net){
+                  	return {
+                  		"{#IFNAME}": net.Name,
+                  		"{#IFDESCR}": net.Description,
+                  		"{#IFALIAS}": net.NetConnectionID,
+                  		"{#IFGUID}": net.GUID
+                  	}})
+                  return JSON.stringify({"data": output})
+            - type: DISCARD_UNCHANGED_HEARTBEAT
+              parameters:
+                - 1h
+      tags:
+        - tag: class
+          value: os
+        - tag: target
+          value: windows
+      macros:
+        - macro: '{$IF.ERRORS.WARN}'
+          value: '10'
+          description: 错误数据包警告阈值。
+        - macro: '{$IF.UTIL.MAX}'
+          value: '90'
+          description: 网络接口使用率阈值。
+        - macro: '{$IFCONTROL}'
+          value: '1'
+          description: 值等于1启用网卡监控，等于0则关闭。
+        - macro: '{$NET.IF.IFALIAS.MATCHES}'
+          value: '.*'
+          description: 用于网络接口发现。
+        - macro: '{$NET.IF.IFALIAS.NOT_MATCHES}'
+          value: CHANGE_THIS
+          description: 用于网络接口发现。
+        - macro: '{$NET.IF.IFDESCR.MATCHES}'
+          value: '.*'
+          description: 用于网络接口发现。
+        - macro: '{$NET.IF.IFDESCR.NOT_MATCHES}'
+          value: CHANGE_THIS
+          description: 用于网络接口发现。
+        - macro: '{$NET.IF.IFNAME.MATCHES}'
+          value: '.*'
+          description: 用于网络接口发现。
+        - macro: '{$NET.IF.IFNAME.NOT_MATCHES}'
+          value: Miniport|Virtual|Teredo|Kernel|Loopback|Bluetooth|HTTPS|6to4|QoS|Layer
+          description: 用于网络接口发现。
+      valuemaps:
+        - uuid: b291eb86d5ea4088a4a6defacdd6b474
+          name: 'Win32_NetworkAdapter::AdapterTypeId'
+          mappings:
+            - value: '0'
+              newvalue: 'Ethernet 802.3'
+            - value: '1'
+              newvalue: 'Token Ring 802.5'
+            - value: '2'
+              newvalue: 'Fiber Distributed Data Interface (FDDI)'
+            - value: '3'
+              newvalue: 'Wide Area Network (WAN)'
+            - value: '4'
+              newvalue: LocalTalk
+            - value: '5'
+              newvalue: 'Ethernet using DIX header format'
+            - value: '6'
+              newvalue: ARCNET
+            - value: '7'
+              newvalue: 'ARCNET (878.2)'
+            - value: '8'
+              newvalue: ATM
+            - value: '9'
+              newvalue: Wireless
+            - value: '10'
+              newvalue: 'Infrared Wireless'
+            - value: '11'
+              newvalue: Bpc
+            - value: '12'
+              newvalue: CoWan
+            - value: '13'
+              newvalue: '1394'
+        - uuid: b291eb86d5ea4088a4a6defacdd6b473
+          name: 'Win32_NetworkAdapter::NetConnectionStatus'
+          mappings:
+            - value: '0'
+              newvalue: 'Disconnected,断开连接,如禁用或物理断开'
+            - value: '1'
+              newvalue: 'Connecting,连接中,如系统启动时自动连接'
+            - value: '2'
+              newvalue: 'Connected,已连接'
+            - value: '3'
+              newvalue: 'Disconnecting,断开中,如手动禁用或系统关闭'
+            - value: '4'
+              newvalue: 'Hardware Not Present,未检测到适配器硬件或驱动未加载'
+            - value: '5'
+              newvalue: 'Hardware Disabled,适配器存在但被禁用'
+            - value: '6'
+              newvalue: 'Hardware Malfunction,硬件损坏或驱动异常导致无法使用'
+            - value: '7'
+              newvalue: 'Media Disconnected,连接断开,如网线未插或无线信号丢失'
+            - value: '8'
+              newvalue: 'Authenticating,正在认证中,如企业网络或VPN'
+            - value: '9'
+              newvalue: 'Authentication Succeeded,认证成功,但未完成最终配置,如IP未分配'
+            - value: '10'
+              newvalue: 'Authentication Failed,认证失败,因密码错误或证书无效导致连接失败'
+            - value: '11'
+              newvalue: 'Invalid Address,无效地址,如DHCP失败或地址冲突'
+            - value: '12'
+              newvalue: 'Credentials Required,需用户提供凭据,如受限Wi-Fi热点'
