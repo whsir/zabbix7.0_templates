@@ -10,7 +10,7 @@ zabbix_export:
       description: 'Zabbix 7.0网络监控模板。'
       vendor:
         name: whsir
-        version: 7.0-1
+        version: 7.0-1.1
       groups:
         - name: Templates
       discovery_rules:
@@ -65,7 +65,8 @@ zabbix_export:
             - uuid: ef323c201bae45979599964f4fda2486
               name: 'Interface {#IFNAME}: Network traffic'
               graph_items:
-                - color: 1A7C11
+                - drawtype: GRADIENT_LINE
+                  color: 1A7C11
                   calc_fnc: ALL
                   item:
                     host: 'Linux agent - Network Monitoring'
